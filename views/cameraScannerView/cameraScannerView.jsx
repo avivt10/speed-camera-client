@@ -1,14 +1,11 @@
-import {
-  Text,
-  SafeAreaView,
-} from "react-native";
+import { Text, SafeAreaView } from "react-native";
 
 const CameraScannerView = () => {
   return (
     <SafeAreaView>
-      <Text>camera scanner </Text>
+      <Text>camera scanner</Text>
     </SafeAreaView>
   );
-}
+};
 
 export default CameraScannerView;

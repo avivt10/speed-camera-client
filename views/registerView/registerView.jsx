@@ -1,5 +1,10 @@
 import React, { useState } from 'react'
 import { SafeAreaView, Text, View,StyleSheet, TextInput, ActivityIndicator, TouchableOpacity  } from 'react-native'
+import { setUserName } from './../../utils/functions/setUserName';
+import { setToken } from './../../utils/functions/setToken';
+import { useNavigation } from '@react-navigation/native';
+import { ValidatePhone, validateFirstName, validateLastName, validatePassword } from './../../utils/validations/validations';
+import axios from 'axios';
 
 const RegisterView = () => {
   let [firstName, setFirstName] = useState("");
@@ -7,6 +12,35 @@ const RegisterView = () => {
   let [phoneNumber, setPhoneNumber] = useState("");
   let [password, setPassword] = useState("");
   let [show, setShow] = useState(false);
+  const navigation = useNavigation();
+
+  let SendDataToServer = async () => {
+    let data = {
+      FirstName: firstName,
+      LastName: lastName,
+      Phone: phoneNumber,
+      Password: password,
+    };
+    try {
+      const res = await axios.post(
+        "http://192.168.7.14:3000/auth/register",
+        data
+      );
+         setToken(res.data.token)
+         setUserName(firstName)
+         setTimeout(() => {
+           navigation.navigate("cameraScannerView");
+          }, 5000),
+           setShow(true);
+    } catch (err) {
+      alert(err.response.data);
+    }
+  };
+
+  const handleRegister = () =>{ 
+    const isValid = validateFirstName(firstName) && validateLastName(lastName) && ValidatePhone(phoneNumber) && validatePassword(password)
+    isValid ? SendDataToServer() : alert("One or more of the details are incorrect, try again!")
+  }
 
   return (
     <SafeAreaView>
@@ -20,7 +54,7 @@ const RegisterView = () => {
         <TextInput style={styles.textInput} placeholder='password' onChangeText={setPassword} secureTextEntry={true}/>
         </View>
         <View style={styles.btnRegister}>
-        <TouchableOpacity title="">
+        <TouchableOpacity title="" onPress={handleRegister}>
         <Text style={styles.btnTextRegister}> Register </Text>
         </TouchableOpacity>
         </View>
