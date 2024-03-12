@@ -1,3 +1,4 @@
+import { useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
 import {
   SafeAreaView,
@@ -6,11 +7,43 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
+import { ValidatePhone, validatePassword } from "../../utils/validations/validations";
+import axios from "axios";
+import { setToken } from "../../utils/functions/setToken";
+import { setUserName } from './../../utils/functions/setUserName';
 
 const LoginView = () => {
   let [phone, setPhone] = useState("");
   let [password, setPassword] = useState("");
+  let [show, setShow] = useState(false);
+  const navigation = useNavigation();
+  let SendDataToServer = async () => {
+    let data = {
+      Phone: phone,
+      Password: password,
+    };
+    try {
+      const res = await axios.post(
+        "http://192.168.7.14:3000/auth/login",
+        data
+      );
+         setToken(res.data.token)
+         setUserName(res.data.FirstName)
+         setTimeout(() => {
+           navigation.navigate("cameraScannerView");
+          }, 5000),
+           setShow(true);
+    } catch (err) {
+      alert(err.response.data);
+    }
+  };
+
+  const handleLogin = () =>{ 
+    const isValid = ValidatePhone(phone) && validatePassword(password)
+    isValid ? SendDataToServer() : alert("One or more of the details are incorrect, try again!")
+  }
 
   return (
     <SafeAreaView>
@@ -18,19 +51,21 @@ const LoginView = () => {
         <Text style={styles.headerLog}> Login</Text>
         <Text style={styles.headerDet}> Please login to your account </Text>
         <View style={styles.inputContainer}>
-          <TextInput style={styles.textInput} placeholder="phone" />
+          <TextInput style={styles.textInput} placeholder="phone" onChangeText={setPhone} />
           <TextInput
             style={styles.textInput}
             placeholder="password"
             secureTextEntry={true}
+            onChangeText={setPassword}
           />
         </View>
         <View style={styles.btnLogin}>
-          <TouchableOpacity title="">
+          <TouchableOpacity title="" onPress={handleLogin}>
           <Text style={styles.btnTextLogin}> Login </Text>
           </TouchableOpacity>
         </View>
       </View>
+      <ActivityIndicator size="large" animating={show} />
     </SafeAreaView>
   );
 };
