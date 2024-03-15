@@ -3,6 +3,7 @@
 # dependencies
 node_modules/
 %ProgramData%
+utils/data
 # Expo
 .expo/
 dist/
